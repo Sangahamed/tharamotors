@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+
+
+@theme {
+    /* Police personnalisée */
+    --font-sans: "Poppins", system-ui, sans-serif;
+
+    /* Couleurs personnalisées */
+    --color-brand: #1800AD;
+    --color-brand-dark: #12008a;
+    --color-amber: #FFA500;
+    --color-amber-hover: #ffb52e;
+    --color-dark: #0f1117;
+    --color-dark-card: #1f1f1f;
+    --color-navy: #1800AD;
+
+    /* Animation marquee */
+    --animate-marquee: marquee 25s linear infinite;
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+}
