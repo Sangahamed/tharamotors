@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\VehicleController;
+use App\Http\Controllers\DevisController;
 
 // ========== ROUTES PUBLIQUES ==========
 Route::get('/', [HomeController::class, 'index']);
@@ -15,6 +16,7 @@ Route::get('/vehicules-occasion', [HomeController::class, 'vehicules'])->name('v
 Route::get('/vehicules-occasion/{id}', [HomeController::class, 'details'])->name('details');
 Route::get('/actualite', [HomeController::class, 'actualite'])->name('actualite');
 Route::get('/devis', [HomeController::class, 'devis'])->name('devis');
+Route::post('/devis', [DevisController::class, 'store'])->name('devis.store');
 
 // ========== AUTHENTIFICATION ==========
 Route::get('/connexion', [AuthController::class, 'showLogin'])->name('connexion');

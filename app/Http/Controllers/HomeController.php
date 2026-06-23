@@ -19,10 +19,39 @@ class HomeController extends Controller
         return view('machines-engins');
     }
 
-    public function vehicules()
+    public function vehicules(Request $request)
     {
-        $vehicles = Vehicle::where('is_available', true)->orderBy('created_at', 'desc')->paginate(12);
-        return view('vehicules-occasion', compact('vehicles'));
+        $brands = Vehicle::where('is_available', true)
+            ->distinct()
+            ->orderBy('brand')
+            ->pluck('brand');
+
+        $fuelTypes = Vehicle::where('is_available', true)
+            ->distinct()
+            ->orderBy('fuel_type')
+            ->pluck('fuel_type');
+
+        $vehicles = Vehicle::where('is_available', true)
+            ->when($request->brand, function ($query, $brand) {
+                return $query->where('brand', $brand);
+            })
+            ->when($request->fuel_type, function ($query, $fuelType) {
+                return $query->where('fuel_type', $fuelType);
+            })
+            ->when($request->max_price, function ($query, $maxPrice) {
+                return $query->where('price', '<=', $maxPrice);
+            })
+            ->when($request->search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('brand', 'like', "%{$search}%")
+                      ->orWhere('model', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('vehicules-occasion', compact('vehicles', 'brands', 'fuelTypes'));
     }
 
     public function details($id)

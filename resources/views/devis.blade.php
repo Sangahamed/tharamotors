@@ -134,41 +134,11 @@
 
 @push('scripts')
     <script>
-        /* ========== FONCTIONS NAVIGATION MOBILE ========== */
-        function toggleMobileNav() {
-            var nav = document.getElementById('mobile-nav');
-            var menuIcon = document.getElementById('menu-icon');
-            var closeIcon = document.getElementById('close-icon');
-            nav.classList.toggle('hidden');
-            menuIcon.classList.toggle('hidden');
-            closeIcon.classList.toggle('hidden');
-        }
-
-        function closeMobileNav() {
-            document.getElementById('mobile-nav').classList.add('hidden');
-            document.getElementById('menu-icon').classList.remove('hidden');
-            document.getElementById('close-icon').classList.add('hidden');
-        }
-        window.addEventListener('scroll', function() {
-            var navbar = document.getElementById('navbar');
-            if (window.scrollY > 80) {
-                navbar.classList.add('bg-[#0f1117]/95', 'backdrop-blur-md', 'shadow-lg');
-            } else {
-                navbar.classList.remove('bg-[#0f1117]/95', 'backdrop-blur-md', 'shadow-lg');
-            }
-        });
-
-        /* ========== SCROLL CARDS ========== */
-        function scrollCards(direction) {
-            var container = document.getElementById('cards-container');
-            container.scrollBy({
-                left: direction === 'left' ? -320 : 320,
-                behavior: 'smooth'
-            });
-        }
+        // Global scripts are handled via app.js
 
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('devisForm');
+            const submitBtn = form.querySelector('button[type="submit"]');
             
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -184,45 +154,78 @@
 
                 // Validation simple
                 if (!nom || !prenom || !telephone || !email) {
-                    alert('Veuillez remplir tous les champs obligatoires (Nom, Prénom, Téléphone, E-mail).');
+                    if (window.showToast) {
+                        window.showToast('Veuillez remplir tous les champs obligatoires.', 'error');
+                    } else {
+                        alert('Veuillez remplir tous les champs obligatoires.');
+                    }
                     return;
                 }
 
                 // Validation email basique
                 const emailPattern = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
                 if (!emailPattern.test(email)) {
-                    alert('Veuillez saisir une adresse e-mail valide.');
+                    if (window.showToast) {
+                        window.showToast('Veuillez saisir une adresse e-mail valide.', 'error');
+                    } else {
+                        alert('Veuillez saisir une adresse e-mail valide.');
+                    }
                     return;
                 }
 
-                // Construction d'une phrase naturelle pour WhatsApp
-                let message = `Bonjour, je souhaite obtenir un devis. Voici mes coordonnées :%0A%0A`;
-                message += ` ${encodeURIComponent(nom)}%0A`;
-                message += ` ${encodeURIComponent(prenom)}%0A`;
-                message += `Téléphone : ${encodeURIComponent(telephone)}%0A`;
-                message += `E-mail : ${encodeURIComponent(email)}%0A%0A`;
+                // Désactivation du bouton de soumission et affichage du loader
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Envoi en cours...';
 
-                if (marque || modele) {
-                    message += `Je suis intéressé(e) par `;
-                    if (marque) message += `la marque ${encodeURIComponent(marque)} `;
-                    if (modele) message += `modèle ${encodeURIComponent(modele)}. `;
-                    message += `%0A%0A`;
-                }
-
-                if (commentaire) {
-                    message += `Commentaire : ${encodeURIComponent(commentaire)}%0A%0A`;
-                }
-
-                message += `Merci de me faire parvenir votre meilleure offre.`;
-
-                // Numéro WhatsApp du destinataire (format international sans +)
-                const phoneNumber = '{{ config("services.whatsapp.number") }}';
-
-                // Création du lien WhatsApp
-                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-
-                // Redirection vers WhatsApp
-                window.open(whatsappUrl, '_blank');
+                // Envoi des données au backend
+                fetch('/devis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nom,
+                        prenom,
+                        telephone,
+                        email,
+                        marque,
+                        modele,
+                        commentaire
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (window.showToast) {
+                        window.showToast('Votre demande a été enregistrée ! Redirection vers WhatsApp...', 'success');
+                    }
+                    
+                    setTimeout(() => {
+                        window.open(data.whatsapp_url, '_blank');
+                        // Réinitialiser le formulaire
+                        form.reset();
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }, 1500);
+                })
+                .catch(err => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    
+                    const msg = err.errors ? Object.values(err.errors).flat().join(' ') : 'Une erreur est survenue lors de l\'envoi.';
+                    if (window.showToast) {
+                        window.showToast(msg, 'error');
+                    } else {
+                        alert(msg);
+                    }
+                });
             });
         });
     </script>

@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'devis_recipient' => env('MAIL_DEVIS_RECIPIENT', 'contact@tharamotors.com'),
+
 ];

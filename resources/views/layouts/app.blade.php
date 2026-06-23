@@ -91,31 +91,9 @@
     <!-- Inclusion du pied de page -->
     @include('partials.footer')
 
-    <!-- Scripts (Three.js, JS personnalisé) -->
-    <script>
-          /* ========== FONCTIONS NAVIGATION MOBILE ========== */
-    function toggleMobileNav() {
-        var nav = document.getElementById('mobile-nav');
-        var menuIcon = document.getElementById('menu-icon');
-        var closeIcon = document.getElementById('close-icon');
-        nav.classList.toggle('hidden');
-        menuIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    }
-    function closeMobileNav() {
-        document.getElementById('mobile-nav').classList.add('hidden');
-        document.getElementById('menu-icon').classList.remove('hidden');
-        document.getElementById('close-icon').classList.add('hidden');
-    }
-    window.addEventListener('scroll', function() {
-        var navbar = document.getElementById('navbar');
-        if (window.scrollY > 80) {
-            navbar.classList.add('bg-[#0f1117]/95', 'backdrop-blur-md', 'shadow-lg');
-        } else {
-            navbar.classList.remove('bg-[#0f1117]/95', 'backdrop-blur-md', 'shadow-lg');
-        }
-    });
-    </script>
+    <!-- Toast notification container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     @stack('scripts')
 </body>
 </html>
