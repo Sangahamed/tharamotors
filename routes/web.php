@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\home;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ArticleController;
@@ -9,20 +9,20 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\VehicleController;
 
 // ========== ROUTES PUBLIQUES ==========
-Route::get('/', [home::class, 'index']);
-Route::get('/machines-engins', [home::class, 'machines'])->name('machines.engins');
-Route::get('/vehicules-occasion', [home::class, 'vehicules'])->name('vehicules.occasion');
-Route::get('/vehicules-occasion/{id}', [home::class, 'details'])->name('details');
-Route::get('/actualite', [home::class, 'actualite'])->name('actualite');
-Route::get('/devis', [home::class, 'devis'])->name('devis');
+Route::get('/', [HomeController::class, 'index']);
+Route::get('/machines-engins', [HomeController::class, 'machines'])->name('machines.engins');
+Route::get('/vehicules-occasion', [HomeController::class, 'vehicules'])->name('vehicules.occasion');
+Route::get('/vehicules-occasion/{id}', [HomeController::class, 'details'])->name('details');
+Route::get('/actualite', [HomeController::class, 'actualite'])->name('actualite');
+Route::get('/devis', [HomeController::class, 'devis'])->name('devis');
 
 // ========== AUTHENTIFICATION ==========
 Route::get('/connexion', [AuthController::class, 'showLogin'])->name('connexion');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ========== ROUTES ADMIN (Protégées par middleware auth + isAdmin) ==========
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin', 'verified'])->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 

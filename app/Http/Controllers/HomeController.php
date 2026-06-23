@@ -7,20 +7,19 @@ use App\Models\Article;
 use App\Models\Vehicle;
 use App\Models\Brand;
 
-class home extends Controller
+class HomeController extends Controller
 {
-    function index()
+    public function index()
     {
         return view('home');
     }
 
-    function machines()
+    public function machines()
     {
         return view('machines-engins');
     }
-   
 
-    function vehicules()
+    public function vehicules()
     {
         $vehicles = Vehicle::where('is_available', true)->orderBy('created_at', 'desc')->paginate(12);
         return view('vehicules-occasion', compact('vehicles'));
@@ -36,16 +35,16 @@ class home extends Controller
         return view('details', compact('vehicle', 'similarVehicles'));
     }
 
-        function actualite()
-        {
-            $articles = Article::orderBy('published_at', 'desc')->paginate(12);
-            $brands = Brand::orderBy('name')->get();
+    public function actualite()
+    {
+        $articles = Article::orderBy('published_at', 'desc')->paginate(12);
+        $brands = Brand::orderBy('name')->get();
 
-            return view('actualite', compact('articles', 'brands'));
-        }
-        function devis()
-        {
-            return view('devis');
-        }
+        return view('actualite', compact('articles', 'brands'));
+    }
 
+    public function devis()
+    {
+        return view('devis');
+    }
 }

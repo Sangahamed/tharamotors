@@ -216,7 +216,7 @@
                 message += `Merci de me faire parvenir votre meilleure offre.`;
 
                 // Numéro WhatsApp du destinataire (format international sans +)
-                const phoneNumber = '+2250501101212';
+                const phoneNumber = '{{ config("services.whatsapp.number") }}';
 
                 // Création du lien WhatsApp
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
