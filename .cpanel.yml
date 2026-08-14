@@ -39,6 +39,9 @@ deployment:
     - /bin/cp -R public/. $WEB/
     # index.php de production : chemins pointes vers ~/laravel
     - /bin/cp deploy/index.php $WEB/index.php
+    # La page d'attente doit disparaitre : Apache sert index.html avant
+    # index.php, elle masquerait l'application.
+    - /bin/rm -f $WEB/index.html
 
     # --- Dependances ---
     - cd $APP && $PHP /opt/cpanel/composer/bin/composer install --no-dev --no-interaction --optimize-autoloader

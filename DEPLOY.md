@@ -13,6 +13,56 @@ DNS : `ns1.whazhe.com` / `ns2.whazhe.com`.
 - [ ] Extensions PHP activées : `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`,
       `json`, `mbstring`, `openssl`, `pcre`, `pdo_mysql`, `tokenizer`, `xml`, `zip`
 
+## 0 bis. Page d'attente (à faire tout de suite)
+
+Tant que les prérequis ci-dessus ne sont pas levés, le domaine affiche le
+contenu brut de `public_html` (`cgi-bin/`) : mauvaise image, et indexation par
+les moteurs de recherche d'une page vide.
+
+Téléverser dans `public_html/`, via le Gestionnaire de fichiers ou en SSH :
+
+| Source (dépôt) | Destination |
+|---|---|
+| `deploy/holding/index.html` | `public_html/index.html` |
+| `deploy/holding/.htaccess` | `public_html/.htaccess` |
+| `public/images/logo.png` | `public_html/images/logo.png` |
+
+En SSH, depuis le clone cPanel :
+
+```bash
+cd /home/tharamotors/repositories/tharamotors
+cp deploy/holding/index.html deploy/holding/.htaccess /home/tharamotors/public_html/
+mkdir -p /home/tharamotors/public_html/images
+cp public/images/logo.png /home/tharamotors/public_html/images/
+```
+
+La page est autonome : pas de PHP, pas de base de données, pas de requête
+externe. Elle fonctionne donc même avec la version de PHP actuelle du serveur.
+`Options -Indexes` supprime l'affichage de `cgi-bin/`.
+
+> Le logo est facultatif : sans lui, la page bascule sur le nom en toutes
+> lettres plutôt que d'afficher une image cassée.
+
+**Retrait automatique** : le premier `Deploy HEAD Commit` réussi supprime
+`public_html/index.html` (tâche prévue dans `.cpanel.yml`) et remplace le
+`.htaccess`. Rien à défaire à la main.
+
+## 0 ter. Blocages en attente chez l'hébergeur
+
+Deux points relèvent de `digitalworka-ci.com` et bloquent le déploiement réel :
+
+- [ ] **Version de PHP non modifiable** — *Sélectionner la version de PHP* est
+      inaccessible ou verrouillé. Laravel 13 exige **PHP 8.3 minimum** : sans
+      cela l'application ne démarrera pas, quelle que soit la qualité du
+      déploiement. À demander explicitement au support.
+- [ ] **Création de base MySQL impossible** — sans base, `migrate` échoue et le
+      site ne peut pas fonctionner. À demander en même temps.
+
+Tant que ces deux points ne sont pas levés, **ne pas lancer** *Deploy HEAD
+Commit* : le déploiement échouerait sur `composer install` ou `migrate` et
+laisserait `public_html` dans un état intermédiaire. La page d'attente reste en
+place jusque-là.
+
 ## 1. Base de données
 
 cPanel → *Bases de données MySQL* :

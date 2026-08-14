@@ -1,0 +1,23 @@
+# .htaccess de la PAGE D'ATTENTE (avant le premier deploiement Laravel).
+#
+# A televerser dans public_html/ en meme temps que index.html.
+# Il sera remplace automatiquement par public/.htaccess (celui de Laravel)
+# lors du premier « Deploy HEAD Commit » reussi.
+
+# Plus de listing de repertoire : c'est ce qui affichait « cgi-bin/ ».
+Options -Indexes
+
+DirectoryIndex index.html index.php
+
+# Pas de HTTPS force ici : AutoSSL n'est pas encore actif, une redirection
+# vers https produirait un avertissement de certificat.
+
+# La page d'attente est temporaire : 503 + Retry-After indique aux moteurs de
+# recherche de repasser plus tard plutot que d'indexer cette page.
+ErrorDocument 503 /index.html
+<IfModule mod_headers.c>
+    <Files "index.html">
+        Header set Retry-After "86400"
+        Header set Cache-Control "no-store, must-revalidate"
+    </Files>
+</IfModule>
