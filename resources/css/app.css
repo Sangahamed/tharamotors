@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+/* Les vues de pagination sont publiées dans resources/views/vendor/pagination,
+   déjà couverte par le @source récursif des vues ci-dessous. Scanner celles du
+   framework réinjectait des classes gray- absentes du design system. */
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
@@ -11,14 +13,79 @@
     /* Police personnalisée */
     --font-sans: "Poppins", system-ui, sans-serif;
 
-    /* Couleurs personnalisées */
-    --color-brand: #1800AD;
-    --color-brand-dark: #12008a;
-    --color-amber: #FFA500;
-    --color-amber-hover: #ffb52e;
-    --color-dark: #0f1117;
-    --color-dark-card: #1f1f1f;
-    --color-navy: #1800AD;
+    /* ------------------------------------------------------------------
+       DESIGN SYSTEM — 4 familles + les neutres natifs `slate`.
+       Les échelles sont ancrées sur les couleurs de marque existantes
+       (primary-700 = #1800AD, accent-500 = #FFA500) : l'identité ne change
+       pas, elle devient seulement systématique.
+
+       Règles d'usage :
+       - primary  : identité, titres, liens, bouton principal, focus ring
+       - accent   : appels à l'action commerciaux, prix, survols
+                    /!\ accent-500 est un fond, jamais un texte sur blanc.
+                    Texte sur fond accent-500 => surface-950 (9.6:1).
+                    Accent en texte sur blanc => accent-700 minimum (4.9:1).
+       - success  : statut « disponible », messages de confirmation
+       - danger   : erreurs de validation, champ requis, statut « indisponible »
+       - surface  : fonds sombres (navbar, sections, cartes sombres)
+       - slate-*  : tous les neutres (remplace gray-* et zinc-*)
+       ------------------------------------------------------------------ */
+
+    /* primary — bleu Thara */
+    --color-primary-50: #DFF4FF;
+    --color-primary-100: #CDE5FF;
+    --color-primary-200: #B2CDFF;
+    --color-primary-300: #93B1FF;
+    --color-primary-400: #7191F3;
+    --color-primary-500: #4E6EDE;
+    --color-primary-600: #2D46C7;
+    --color-primary-700: #1800AD;
+    --color-primary-800: #150099;
+    --color-primary-900: #14008A;
+    --color-primary-950: #14007C;
+
+    /* accent — orange Thara */
+    --color-accent-50: #FFE587;
+    --color-accent-100: #FFDE7D;
+    --color-accent-200: #FFD26C;
+    --color-accent-300: #FFC557;
+    --color-accent-400: #FFB63B;
+    --color-accent-500: #FFA500;
+    --color-accent-600: #D07D00;
+    --color-accent-700: #AB5E00;
+    --color-accent-800: #8A4300;
+    --color-accent-900: #6C2900;
+    --color-accent-950: #500F00;
+
+    /* success — disponible / confirmation */
+    --color-success-50: #D3FFDC;
+    --color-success-100: #C6FAD0;
+    --color-success-200: #B3EBBD;
+    --color-success-300: #9BD9A7;
+    --color-success-400: #81C58F;
+    --color-success-500: #63AF75;
+    --color-success-600: #43985A;
+    --color-success-700: #15803D;
+    --color-success-800: #006323;
+    --color-success-900: #004C0E;
+    --color-success-950: #003800;
+
+    /* danger — erreur / requis / indisponible */
+    --color-danger-50: #FFDDD2;
+    --color-danger-100: #FFD0C4;
+    --color-danger-200: #FFBCB0;
+    --color-danger-300: #FFA497;
+    --color-danger-400: #FB897C;
+    --color-danger-500: #E76B5F;
+    --color-danger-600: #D14940;
+    --color-danger-700: #B91C1C;
+    --color-danger-800: #980000;
+    --color-danger-900: #7E0000;
+    --color-danger-950: #660000;
+
+    /* surface — fonds sombres */
+    --color-surface-900: #1F1F1F;
+    --color-surface-950: #0F1117;
 
     /* Animation marquee */
     --animate-marquee: marquee 25s linear infinite;

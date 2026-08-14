@@ -15,6 +15,19 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
+        // Le middleware `auth` redirige par défaut vers la route nommée `login`,
+        // qui n'existe ici qu'en POST : la page de connexion est `connexion` (GET).
+        // Sans cette ligne, tout accès invité à une route protégée renvoie un 405.
+        $middleware->redirectGuestsTo(fn () => route('connexion'));
+
+        // Derrière un tunnel (ngrok) ou un load balancer, la requête arrive en
+        // HTTP : sans ça Laravel génère des URLs http:// sur une page https://.
+        // Variable d'environnement SYSTÈME (pas .env : cette closure s'exécute
+        // avant son chargement). Absente en production = aucun proxy de confiance.
+        if ($proxies = env('TRUST_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

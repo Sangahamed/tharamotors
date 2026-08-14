@@ -56,8 +56,8 @@ window.toggleFaq = function (btn) {
             if (otherChevron) {
                 otherChevron.style.transform = 'rotate(0deg)';
             }
-            item.classList.remove('bg-gray-200');
-            item.classList.add('bg-gray-200/60');
+            item.classList.remove('bg-slate-200');
+            item.classList.add('bg-slate-200/60');
         }
     });
 
@@ -65,14 +65,14 @@ window.toggleFaq = function (btn) {
         answer.classList.remove('open');
         answer.style.maxHeight = '0';
         if (chevron) chevron.style.transform = 'rotate(0deg)';
-        parent.classList.remove('bg-gray-200');
-        parent.classList.add('bg-gray-200/60');
+        parent.classList.remove('bg-slate-200');
+        parent.classList.add('bg-slate-200/60');
     } else {
         answer.classList.add('open');
         answer.style.maxHeight = answer.scrollHeight + 'px';
         if (chevron) chevron.style.transform = 'rotate(180deg)';
-        parent.classList.add('bg-gray-200');
-        parent.classList.remove('bg-gray-200/60');
+        parent.classList.add('bg-slate-200');
+        parent.classList.remove('bg-slate-200/60');
     }
 };
 
@@ -93,9 +93,9 @@ window.scrollCards = function (direction) {
 // ═══════════════════════════════════
 window.showToast = function (msg, type = 'error') {
     const colors = {
-        error:   'bg-red-500 text-white border-red-600',
-        success: 'bg-green-500 text-white border-green-600',
-        info:    'bg-blue-500 text-white border-blue-600',
+        error:   'bg-danger-700 text-white border-danger-800',
+        success: 'bg-success-700 text-white border-success-800',
+        info:    'bg-primary-700 text-white border-primary-800',
     };
     const container = document.getElementById('toast-container');
     if (!container) {
@@ -107,7 +107,7 @@ window.showToast = function (msg, type = 'error') {
     el.className = `px-5 py-3 rounded-xl shadow-lg border text-sm font-bold transition-all duration-300 transform translate-y-2 opacity-0 flex items-center justify-between gap-4 pointer-events-auto ${colors[type] ?? colors.info}`;
     el.innerHTML = `
         <span>${msg}</span>
-        <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200 font-bold ml-2">×</button>
+        <button onclick="this.parentElement.remove()" class="text-white hover:text-slate-200 font-bold ml-2">×</button>
     `;
     container.appendChild(el);
 

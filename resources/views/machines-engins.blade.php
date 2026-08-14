@@ -27,7 +27,7 @@
     <section class="py-20 bg-white">
         <div class="container mx-auto px-4 max-w-7xl">
             <h2 class="text-3xl md:text-5xl font-black text-[#1800AD] mb-6">Nos équipements</h2>
-            <p class="text-gray-600 leading-relaxed max-w-4xl mb-4">
+            <p class="text-slate-600 leading-relaxed max-w-4xl mb-4">
                 Une sélection de plus de 300 machines illustrant notre engagement primordial à satisfaire notre clientèle.
                 Avec des équipements durables, fiables et variés, nous répondons à leurs besoins grâce à un bon système de
                 distribution et de service SAV.
@@ -91,13 +91,13 @@
 
             <!-- Pagination -->
             <div class="bg-white mt-16 px-6 py-4 flex flex-col">
-                <span class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-5">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-5">
                     1 — 12
                 </span>
                 <div class="flex items-center w-full">
-                    <div class="grow border-b-2 border-orange-400"></div>
+                    <div class="grow border-b-2 border-accent-400"></div>
 
-                    <div class="ml-4 flex items-center justify-center w-10 h-10 rounded-full border-2 border-orange-400 text-orange-400 cursor-pointer hover:bg-orange-400 hover:text-white transition-all duration-300 group">
+                    <div class="ml-4 flex items-center justify-center w-10 h-10 rounded-full border-2 border-accent-400 text-accent-400 cursor-pointer hover:bg-accent-400 hover:text-surface-950 transition-all duration-300 group">
                         <svg class="w-5 h-5 transform group-hover:translate-x-0.5 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path>
@@ -179,13 +179,13 @@
 
             <!-- Pagination -->
             <div class="bg-white mt-16 px-6 py-4 flex flex-col">
-                <span class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-5">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-5">
                     1 — 12
                 </span>
                 <div class="flex items-center w-full">
-                    <div class="grow border-b-2 border-orange-400"></div>
+                    <div class="grow border-b-2 border-accent-400"></div>
 
-                    <div class="ml-4 flex items-center justify-center w-10 h-10 rounded-full border-2 border-orange-400 text-orange-400 cursor-pointer hover:bg-orange-400 hover:text-white transition-all duration-300 group">
+                    <div class="ml-4 flex items-center justify-center w-10 h-10 rounded-full border-2 border-accent-400 text-accent-400 cursor-pointer hover:bg-accent-400 hover:text-surface-950 transition-all duration-300 group">
                         <svg class="w-5 h-5 transform group-hover:translate-x-0.5 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path>

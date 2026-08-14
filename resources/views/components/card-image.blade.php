@@ -34,7 +34,7 @@
         {{ $title }}
     </h3>
 
-    <p class="text-xl text-blue-100 leading-relaxed mb-6">
+    <p class="text-xl text-primary-100 leading-relaxed mb-6">
         {!! $description !!}
     </p>
 

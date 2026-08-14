@@ -78,7 +78,7 @@
 
     @stack('styles')
 </head>
-<body class="font-sans antialiased bg-white text-gray-900">
+<body class="font-sans antialiased bg-white text-slate-900">
 
     <!-- Inclusion de la barre de navigation -->
     @include('partials.navbar')
