@@ -22,13 +22,13 @@
 
                 <!-- Colonne formulaire -->
                 <div class="bg-white rounded-xl p-6 sm:p-8">
-                    <div class="bg-white border-b border-gray-100 px-6 pt-8 pb-4 sm:px-10">
+                    <div class="bg-white border-b border-slate-100 px-6 pt-8 pb-4 sm:px-10">
                         <div class="flex items-center gap-3">
-                            <div class="h-8 w-1.5 bg-orange-500 rounded-full"></div>
-                            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900">Demander un devis
+                            <div class="h-8 w-1.5 bg-accent-500 rounded-full"></div>
+                            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">Demander un devis
                             </h1>
                         </div>
-                        <p class="text-gray-500 mt-2 text-sm sm:text-base ml-2.5">Remplissez le formulaire ci-dessous pour
+                        <p class="text-slate-500 mt-2 text-sm sm:text-base ml-2.5">Remplissez le formulaire ci-dessous pour
                             recevoir une offre personnalisée.</p>
                     </div>
 
@@ -37,19 +37,19 @@
                            
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>
-                                    <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Nom <span class="text-red-500 text-base align-middle">*</span>
+                                    <label for="nom" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                        Nom <span class="text-danger-700 text-base align-middle">*</span>
                                     </label>
                                     <input type="text" id="nom" name="nom" required
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="Dupont">
                                 </div>
                                 <div>
-                                    <label for="prenom" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Prénom(s) <span class="text-red-500 text-base align-middle">*</span>
+                                    <label for="prenom" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                        Prénom(s) <span class="text-danger-700 text-base align-middle">*</span>
                                     </label>
                                     <input type="text" id="prenom" name="prenom" required
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="Jean">
                                 </div>
                             </div>
@@ -57,19 +57,19 @@
                             
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-6">
                                 <div>
-                                    <label for="telephone" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Téléphone <span class="text-red-500 text-base align-middle">*</span>
+                                    <label for="telephone" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                        Téléphone <span class="text-danger-700 text-base align-middle">*</span>
                                     </label>
                                     <input type="tel" id="telephone" name="telephone" required
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="+225 0565355079">
                                 </div>
                                 <div>
-                                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Adresse e-mail <span class="text-red-500 text-base align-middle">*</span>
+                                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                        Adresse e-mail <span class="text-danger-700 text-base align-middle">*</span>
                                     </label>
                                     <input type="email" id="email" name="email" required
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="bsanga@example.com">
                                 </div>
                             </div>
@@ -77,19 +77,19 @@
                             <!-- Marque et Modèle (saisie libre) -->
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-7">
                                 <div>
-                                    <label for="marque" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                    <label for="marque" class="block text-sm font-semibold text-slate-700 mb-1.5">
                                         Marque
                                     </label>
                                     <input type="text" id="marque" name="marque"
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="Ex: Toyota, BMW, ...">
                                 </div>
                                 <div>
-                                    <label for="modele" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                    <label for="modele" class="block text-sm font-semibold text-slate-700 mb-1.5">
                                         Modèle
                                     </label>
                                     <input type="text" id="modele" name="modele"
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 placeholder:text-gray-400"
+                                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 placeholder:text-slate-400"
                                         placeholder="Ex: Corolla, Série 3, ...">
                                 </div>
                             </div>
@@ -97,25 +97,25 @@
                             <!-- Commentaire -->
                             <div class="mt-7">
                                 <label for="commentaire"
-                                    class="block text-sm font-semibold text-gray-700 mb-1.5">Commentaire</label>
+                                    class="block text-sm font-semibold text-slate-700 mb-1.5">Commentaire</label>
                                 <textarea id="commentaire" name="commentaire" rows="4"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 resize-y placeholder:text-gray-400"
+                                    class="w-full px-4 py-2.5 border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-200 resize-y placeholder:text-slate-400"
                                     placeholder="Détails supplémentaires, informations sur le projet, ou toute question..."></textarea>
                             </div>
 
                             <!-- Bouton d'envoi -->
                             <div class="mt-8">
                                 <button type="submit"
-                                    class="w-full bg-orange-700 hover:bg-orange-800 active:bg-orange-900 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-orange-300 focus:ring-offset-1">
+                                    class="w-full bg-accent-500 hover:bg-accent-400 active:bg-accent-600 text-surface-950 font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-primary-600 focus:ring-offset-1">
                                     Envoyer la demande
                                 </button>
                             </div>
 
                             <!-- Mention de sécurité -->
                             <div
-                                class="mt-5 flex items-start gap-2 text-xs sm:text-sm text-gray-500 bg-gray-50/80 p-3 rounded-xl border border-gray-100">
+                                class="mt-5 flex items-start gap-2 text-xs sm:text-sm text-slate-500 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none"
+                                    class="h-4 w-4 sm:h-5 sm:w-5 text-accent-500 flex-shrink-0 mt-0.5" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

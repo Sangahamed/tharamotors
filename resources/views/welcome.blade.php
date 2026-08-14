@@ -35,13 +35,13 @@
                 LA NOUVELLE ÈRE <br> <span class="text-red-600">AUTOMOBILE</span>
             </h2>
 
-            <p class="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+            <p class="text-slate-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
                 Nous préparons une expérience inédite pour les passionnés de mécanique et de design. Restez à l'affût, le lancement est imminent.
             </p>
 
-            <div class="w-full bg-gray-800 rounded-full h-2 mb-12 max-w-md mx-auto">
+            <div class="w-full bg-slate-800 rounded-full h-2 mb-12 max-w-md mx-auto">
                 <div class="bg-red-600 h-2 rounded-full" style="width: 75%"></div>
-                <p class="text-right text-xs mt-2 text-gray-500 font-speed">75% ASSEMBLÉ</p>
+                <p class="text-right text-xs mt-2 text-slate-500 font-speed">75% ASSEMBLÉ</p>
             </div>
 
             <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
@@ -54,13 +54,13 @@
         </div>
 
         <div class="absolute bottom-8 flex gap-6 text-2xl">
-            <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-slate-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-slate-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-slate-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
         </div>
     </div>
 
-    <div class="bg-zinc-900 py-20 px-4">
+    <div class="bg-slate-900 py-20 px-4">
         <div class="max-w-6xl mx-auto">
             <h3 class="font-speed text-2xl mb-10 border-l-4 border-red-600 pl-4">APERÇU DU SHOWROOM</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

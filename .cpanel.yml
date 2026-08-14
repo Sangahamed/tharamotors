@@ -1,0 +1,54 @@
+---
+# Deploiement cPanel > Git(TM) Version Control.
+# Ces taches sont executees dans un meme shell, depuis la racine du depot
+# clone (/home/tharamotors/repositories/tharamotors), a chaque clic sur
+# « Deploy HEAD Commit ».
+#
+# Le code applicatif va dans ~/laravel (hors web), seul public/ est expose.
+# Voir DEPLOY.md.
+deployment:
+  tasks:
+    - export APP=/home/tharamotors/laravel
+    - export WEB=/home/tharamotors/public_html
+    - export PHP=/opt/cpanel/ea-php83/root/usr/bin/php
+    - /bin/test -x $PHP || export PHP=/usr/local/bin/php
+
+    # --- Mode maintenance (ignore si l'appli n'est pas encore installee) ---
+    - /bin/test -f $APP/artisan && $PHP $APP/artisan down --render=errors::503 || true
+
+    # --- Code applicatif ---
+    # Les dossiers cibles sont supprimes avant copie : sans cela `cp -R app
+    # $APP/` creerait $APP/app/app au deuxieme deploiement, et les fichiers
+    # supprimes du depot survivraient sur le serveur.
+    - /bin/mkdir -p $APP $WEB
+    - /bin/rm -rf $APP/app $APP/config $APP/database $APP/resources $APP/routes
+    - /bin/cp -R app config database resources routes $APP/
+    # bootstrap/ contient bootstrap/cache (caches generes) : on remplace le
+    # code sans toucher au dossier cache.
+    - /bin/rm -rf $APP/bootstrap/providers.php $APP/bootstrap/app.php
+    - /bin/cp -R bootstrap/. $APP/bootstrap/
+    - /bin/mkdir -p $APP/bootstrap/cache
+    - /bin/cp artisan composer.json composer.lock $APP/
+    # storage/ n'est copie qu'au premier deploiement : il contient les
+    # fichiers televerses, les logs et les caches du serveur.
+    - /bin/test -d $APP/storage || /bin/cp -R storage $APP/
+
+    # --- Racine web ---
+    # public/. copie le contenu, pas le dossier ; le lien symbolique
+    # public_html/storage et le .env ne sont pas touches.
+    - /bin/cp -R public/. $WEB/
+    # index.php de production : chemins pointes vers ~/laravel
+    - /bin/cp deploy/index.php $WEB/index.php
+
+    # --- Dependances ---
+    - cd $APP && $PHP /opt/cpanel/composer/bin/composer install --no-dev --no-interaction --optimize-autoloader
+
+    # --- Base de donnees et caches ---
+    - cd $APP && $PHP artisan migrate --force
+    - cd $APP && $PHP artisan config:cache
+    - cd $APP && $PHP artisan route:cache
+    - cd $APP && $PHP artisan view:cache
+    - cd $APP && $PHP artisan storage:link || true
+
+    - /bin/chmod -R 755 $APP/storage $APP/bootstrap/cache
+    - cd $APP && $PHP artisan up

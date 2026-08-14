@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Article;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use Feeds;
+use SimplePie\SimplePie;
 
 class FetchAutoNews extends Command
 {
@@ -33,7 +33,7 @@ class FetchAutoNews extends Command
 
     private function fetchFromRSS()
 {
-    $feed = Feeds::make('https://news.google.com/rss/search?q=automobile&hl=fr&gl=FR&ceid=FR:fr');
+    $feed = $this->makeFeed('https://news.google.com/rss/search?q=automobile&hl=fr&gl=FR&ceid=FR:fr');
     $items = $feed->get_items();
 
     foreach ($items as $item) {
@@ -58,6 +58,64 @@ class FetchAutoNews extends Command
         );
     }
 }
+
+    /**
+     * Construit un flux SimplePie à partir de config/feeds.php.
+     *
+     * Remplace la façade willvincent/feeds, qui n'était qu'un emballage autour de
+     * SimplePie et plafonnait à Laravel 12 (dernière version : v2.7.0, février 2025).
+     * Les réglages restent lus depuis config/feeds.php pour ne rien changer au
+     * comportement existant.
+     */
+    private function makeFeed(string $url): SimplePie
+    {
+        $config = config('feeds');
+
+        $feed = new SimplePie();
+
+        if ($config['cache.disabled']) {
+            $feed->enable_cache(false);
+        } else {
+            $feed->set_cache_location($config['cache.location']);
+            $feed->set_cache_duration($config['cache.life']);
+        }
+
+        $curlOptions = is_array($config['curl.options']) ? $config['curl.options'] : [];
+
+        if ($config['ssl_check.disabled']) {
+            $curlOptions[CURLOPT_SSL_VERIFYHOST] = false;
+            $curlOptions[CURLOPT_SSL_VERIFYPEER] = false;
+        }
+
+        $feed->set_curl_options($curlOptions);
+
+        if (! empty($config['user_agent'])) {
+            $feed->set_useragent($config['user_agent']);
+        }
+
+        if (is_int($config['curl.timeout'])) {
+            $feed->set_timeout($config['curl.timeout']);
+        }
+
+        $stripDisabled = $config['strip_html_tags.disabled'] ?? false;
+
+        $feed->strip_htmltags(
+            ! $stripDisabled && is_array($config['strip_html_tags.tags'] ?? null)
+                ? $config['strip_html_tags.tags']
+                : false
+        );
+
+        $feed->strip_attributes(
+            ! $stripDisabled && is_array($config['strip_attribute.tags'] ?? null)
+                ? $config['strip_attribute.tags']
+                : false
+        );
+
+        $feed->set_feed_url($url);
+        $feed->init();
+
+        return $feed;
+    }
 
     private function fetchFromNewsAPI()
     {
