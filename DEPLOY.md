@@ -375,13 +375,28 @@ php artisan key:generate --show                   # noter la cle base64:...
 La clé sert au `.env` de production (§4). **Générer une nouvelle clé**, celle du
 `.env` local est compromise.
 
-Compresser ensuite les deux arborescences — un envoi FTP de `vendor/` fichier
-par fichier, c'est des milliers d'éléments et plusieurs heures :
+Compresser ensuite les arborescences — un envoi FTP de `vendor/` fichier par
+fichier, c'est des milliers d'éléments et plusieurs heures. Le Gestionnaire de
+fichiers cPanel extrait aussi bien `.tar.gz` que `.zip`, et `tar` est bien plus
+rapide que `Compress-Archive` sur ce volume :
 
-| Archive à créer | Contenu |
-|---|---|
-| `laravel.zip` | `app/ bootstrap/ config/ database/ resources/ routes/ storage/ vendor/ artisan composer.json composer.lock` |
-| `web.zip` | le **contenu** de `public/` (pas le dossier lui-même) |
+```bash
+cd <copie-de-production>
+tar -czf dist/vendor.tar.gz vendor          # ~5 Mo
+tar -czf dist/web.tar.gz -C public .        # ~27 Mo, contenu de public/
+```
+
+| Archive | Contenu | Extraire dans |
+|---|---|---|
+| `vendor.tar.gz` | `vendor/` seul | `/home/tharamotors/laravel/` |
+| `web.tar.gz` | le **contenu** de `public/` | `/home/tharamotors/public_html/` |
+
+Le dépôt ignore `/dist` : ces archives ne sont jamais versionnées.
+
+> `web.tar.gz` pèse 27 Mo à cause de `public/images/` (28 Mo d'images non
+> optimisées, dont une de 10 Mo). Ce n'est pas bloquant pour le déploiement,
+> mais c'est autant de poids sur les pages : une passe d'optimisation des
+> images est à prévoir après la mise en ligne.
 
 > Ne pas inclure `bootstrap/cache/*` : un `config.php` généré en local
 > contiendrait les chemins et les identifiants de la machine de développement,
