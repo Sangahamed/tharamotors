@@ -8,7 +8,9 @@ DNS : `ns1.whazhe.com` / `ns2.whazhe.com`.
 - [x] Accès cPanel rétabli (serveur de nouveau disponible, 16 août 2026)
 - [x] Version de PHP modifiable et création de base MySQL débloquées par
       l'hébergeur (16 août 2026)
-- [ ] **Accès shell activé sur le compte** — bloquant, voir §0 bis
+- [~] **Accès shell** — *indisponible sur l'offre souscrite* (réponse de
+      l'hébergeur, 16 août 2026). Contourné par les tâches cron, voir §0 bis
+      et §9
 - [ ] `public_html` vidé de tout fichier non identifié
 - [ ] Clé SSH autorisée (cPanel → *SSH Access* → *Manage SSH Keys*)
 - [ ] PHP **8.3 ou supérieur** sélectionné dans cPanel → *Sélectionner la version de PHP*
@@ -39,18 +41,27 @@ ssh -p 2222 tharamotors@tharamotors.com   # certains hebergeurs deplacent SSH
 `Connection refused` sur les deux ports = shell non activé (constaté le
 16 août 2026 sur le port 22).
 
-Correction, à demander à `digitalworka-ci.com` :
+**Réponse de l'hébergeur (16 août 2026) : l'accès SSH n'est pas disponible sur
+l'offre souscrite.** Le bouton *Deploy HEAD Commit* restera donc inactif tant
+que le compte n'est pas monté en gamme.
 
-> Activer l'accès SSH (**jailed shell**) sur le compte cPanel `tharamotors`,
-> nécessaire pour la fonction *Git Version Control → Deploy*.
+### Contournement retenu : les tâches cron
 
-Le jailed shell suffit — c'est le réglage standard en mutualisé, et il se
-refuse moins souvent qu'un shell complet.
+Les **tâches cron cPanel s'exécutent, elles, dans un shell**, sous
+l'utilisateur du compte. `artisan`, `composer` et `git` redeviennent donc
+accessibles, et le script `deploy/deploy.sh` rejoue les étapes de
+`.cpanel.yml`. C'est la méthode de déploiement du projet : **§9**.
 
-> **Si l'hébergeur refuse le shell**, le déploiement automatique est
-> définitivement impossible : basculer sur la procédure manuelle du **§9**.
-> Elle fonctionne, mais chaque mise à jour se refait entièrement à la main —
-> dépannage, pas mode de fonctionnement.
+Cron a été confirmé fonctionnel sur le compte le 16 août 2026.
+
+Si les tâches cron venaient elles aussi à manquer, il resterait la procédure
+100 % manuelle du **§10** — dépannage, pas mode de fonctionnement.
+
+### Question ouverte : montée en gamme
+
+Reste à demander à `digitalworka-ci.com` **quelle formule inclut l'accès SSH,
+et à quel tarif**. Si l'écart est faible, l'upgrade rétablit le déploiement en
+un clic et supprime la manipulation cron à chaque mise à jour.
 
 ## 0 ter. Page d'attente (à faire tout de suite)
 
@@ -82,27 +93,28 @@ externe. Elle fonctionne donc même avec la version de PHP actuelle du serveur.
 > Le logo est facultatif : sans lui, la page bascule sur le nom en toutes
 > lettres plutôt que d'afficher une image cassée.
 
-**Retrait automatique** : le premier `Deploy HEAD Commit` réussi supprime
-`public_html/index.html` (tâche prévue dans `.cpanel.yml`) et remplace le
-`.htaccess`. Rien à défaire à la main.
+**Retrait automatique** : le premier déploiement réussi supprime
+`public_html/index.html` et remplace le `.htaccess`. Rien à défaire à la main.
+La tâche est prévue à la fois dans `.cpanel.yml` et dans `deploy/deploy.sh`,
+donc quelle que soit la méthode employée.
 
 ## 0 quater. Ordre du premier déploiement
 
-Les deux premiers blocages hébergeur (version de PHP verrouillée, création de
-base MySQL impossible) sont levés depuis le 16 août 2026. Reste l'accès shell
-(§0 bis), sans lequel l'étape 7 est inaccessible. Ensuite, **dans cet ordre** —
+Les blocages sur la version de PHP et la création de base MySQL sont levés
+depuis le 16 août 2026. L'accès SSH, lui, n'existe pas sur l'offre : le
+déploiement passe par une tâche cron (§0 bis et §9). **Dans cet ordre** —
 chaque étape conditionne la suivante :
 
-1. Accès shell activé par l'hébergeur (§0 bis)
-2. cPanel → PHP **8.3+** sélectionné, extensions de la §0 activées
-3. Base et utilisateur MySQL créés, privilèges accordés (§1)
-4. Dépôt cloné dans `~/repositories/tharamotors` (§3.1) et branche choisie (§3.2)
-5. `~/laravel/.env` écrit à la main avec une **nouvelle** `APP_KEY` (§4) —
-   sans lui `migrate` échoue
-6. Chemins `PHP` et `composer` de `.cpanel.yml` vérifiés en SSH (§3.4)
-7. *Update from Remote* puis *Deploy HEAD Commit* (§3.3)
+1. cPanel → PHP **8.3+** sélectionné, extensions de la §0 activées
+2. Base et utilisateur MySQL créés, privilèges accordés (§1)
+3. Dépôt cloné dans `~/repositories/tharamotors` (§3.1) et branche choisie (§3.2)
+4. `~/laravel/.env` écrit à la main avec une **nouvelle** `APP_KEY` (§4) —
+   sans lui `deploy.sh` s'arrête avant de toucher aux fichiers
+5. Tâche cron de diagnostic pour situer `php`, `composer` et `git` (§9.1)
+6. `vendor.zip` téléversé si `composer` est absent du serveur (§10.1)
+7. Tâche cron de déploiement, passée une fois puis supprimée (§9.3)
 
-Le déploiement supprime lui-même `public_html/index.html` : la page d'attente
+Le script supprime lui-même `public_html/index.html` : la page d'attente
 disparaît au premier déploiement réussi, rien à défaire à la main.
 
 ## 1. Base de données
@@ -167,6 +179,11 @@ Onglet *Manage* → **Checked-Out Branch** → sélectionner la branche de
 production, puis *Update*.
 
 ### 3.3 Déployer
+
+> ⚠️ **Indisponible sur l'offre actuelle.** *Deploy HEAD Commit* exige un accès
+> shell que le compte n'a pas (§0 bis) : le bouton reste grisé. Cette section
+> décrit la cible, à utiliser telle quelle après une éventuelle montée en
+> gamme. En attendant, déployer par tâche cron — **§9**.
 
 Onglet *Pull or Deploy* → **Update from Remote** puis **Deploy HEAD Commit**.
 
@@ -270,17 +287,84 @@ le fichier est réécrit à chaque déploiement.
 - [ ] Connexion admin fonctionnelle
 - [ ] `laravel/storage/logs/` ne contient pas d'erreur après navigation
 
-## 9. Déploiement manuel — sans shell
+## 9. Déploiement par tâche cron — sans SSH
 
-Procédure de repli tant que l'accès shell n'est pas accordé (§0 bis). Elle
-n'utilise que FTP et le Gestionnaire de fichiers cPanel. **Aucune commande
-`artisan` ne peut être lancée sur le serveur** : tout ce qui en dépend est
-préparé en local ou contourné ci-dessous.
+**C'est la méthode retenue.** L'accès SSH interactif n'est pas disponible sur
+l'offre (§0 bis), mais les **tâches cron cPanel s'exécutent dans un shell**,
+sous l'utilisateur du compte. On retrouve donc `artisan`, `composer` et `git` :
+l'essentiel du déploiement automatique, sans passer par le bouton *Deploy HEAD
+Commit* qui reste inactif.
+
+Le script `deploy/deploy.sh` du dépôt reprend les étapes de `.cpanel.yml`. Il
+est idempotent : le relancer est sans danger.
+
+### 9.1 Diagnostic — ce dont dispose le serveur
+
+Avant tout, savoir si `composer` et `git` sont présents : cela détermine s'il
+faut téléverser `vendor/` à la main. cPanel → *Tâches cron*, exécution dans
+5 minutes, commande :
+
+```bash
+{ date; echo "--- PHP ---"; ls /opt/cpanel/ea-php*/root/usr/bin/php; command -v php; php -v | head -1; echo "--- COMPOSER ---"; command -v composer; ls -l /opt/cpanel/composer/bin/composer; echo "--- GIT ---"; command -v git; git --version; echo "--- DEPOT ---"; ls -d /home/tharamotors/repositories/tharamotors; } > /home/tharamotors/diag.log 2>&1
+```
+
+Lire ensuite `/home/tharamotors/diag.log` dans le Gestionnaire de fichiers,
+puis **supprimer la tâche**. Trois cas :
+
+| Résultat | Suite |
+|---|---|
+| `composer` **et** `git` présents | Idéal : §9.2, rien à téléverser |
+| `git` seul | §9.2, mais téléverser `vendor.zip` (§10.1) |
+| Aucun des deux | Tout téléverser à la main : §10 |
+
+### 9.2 Mise en place
+
+1. Créer `/home/tharamotors/laravel/.env` (§4) — le script refuse de démarrer
+   sans lui, avant d'avoir touché au moindre fichier.
+2. Vérifier que le dépôt est cloné dans `~/repositories/tharamotors` (§3.1).
+   Sinon, téléverser le code à la main (§10.2) : le script fonctionne aussi
+   sans `git`, il se contente alors de déployer les fichiers en place.
+3. Si `composer` est absent, téléverser `vendor.zip` et l'extraire dans
+   `/home/tharamotors/laravel/` (§10.1).
+
+### 9.3 La tâche cron de déploiement
+
+cPanel → *Tâches cron*. Commande :
+
+```bash
+/bin/bash /home/tharamotors/repositories/tharamotors/deploy/deploy.sh >> /home/tharamotors/deploy.log 2>&1
+```
+
+> **Ne pas la laisser sur une fréquence récurrente.** Le déploiement se
+> déclenche à la demande : programmer l'exécution quelques minutes plus tard,
+> laisser tourner, puis **supprimer la tâche**. Une tâche laissée toutes les
+> cinq minutes rejouerait `migrate` et les copies de fichiers en boucle.
+
+Le journal complet est dans `/home/tharamotors/deploy.log`, lisible depuis le
+Gestionnaire de fichiers. Le script s'arrête et laisse le site en maintenance
+si PHP est trop ancien, si `.env` manque, si `git pull` échoue, si `vendor/`
+est introuvable ou si `migrate` échoue — le message est alors en clair dans le
+journal.
+
+### 9.4 Mises à jour suivantes
+
+En local : `npm run build` si `resources/` a changé, puis `git push`. Sur le
+serveur : recréer la tâche cron du §9.3, la laisser passer une fois, la
+supprimer. Le `git pull` du script récupère le nouveau code.
+
+## 10. Déploiement 100 % manuel — dernier recours
+
+Uniquement si les tâches cron sont elles aussi indisponibles, ou si ni `git`
+ni `composer` ne sont présents sur le serveur (§9.1). **Aucune commande
+`artisan` ne peut alors être lancée** : tout ce qui en dépend est préparé en
+local ou contourné ci-dessous.
+
+Elle n'utilise que FTP et le Gestionnaire de fichiers cPanel.
 
 À relire avant chaque mise à jour : contrairement au déploiement automatique,
 rien n'est rejoué tout seul.
 
-### 9.1 Préparer les fichiers en local
+### 10.1 Préparer les fichiers en local
 
 ```bash
 composer install --no-dev --optimize-autoloader   # produit vendor/
@@ -304,7 +388,7 @@ par fichier, c'est des milliers d'éléments et plusieurs heures :
 > et l'application de production les utiliserait. Le dossier `bootstrap/cache/`
 > doit partir **vide**.
 
-### 9.2 Envoyer et extraire
+### 10.2 Envoyer et extraire
 
 Téléverser les archives par FTP, puis *Extract* dans le Gestionnaire de
 fichiers cPanel :
@@ -319,13 +403,13 @@ Puis, dans `public_html/` :
 - supprimer `index.html` — la page d'attente, qu'Apache sert **avant**
   `index.php` et qui masquerait le site.
 
-### 9.3 `.env`
+### 10.3 `.env`
 
 Créer `/home/tharamotors/laravel/.env` avec le Gestionnaire de fichiers, à
 partir de `.env.production.example` (§4). Compléter `APP_KEY` (celle du §9.1),
 `DB_PASSWORD` et `MAIL_PASSWORD`. Vérifier `APP_DEBUG=false`.
 
-### 9.4 Base de données — sans `artisan migrate`
+### 10.4 Base de données — sans `artisan migrate`
 
 Les migrations se jouent en local, puis le schéma est importé :
 
@@ -341,7 +425,7 @@ cPanel → *phpMyAdmin* → base `tharamotors_prod` → *Importer* → `schema.s
 > `CACHE_STORE` et `QUEUE_CONNECTION` sont sur `database`, donc les tables
 > `sessions`, `cache` et `jobs` doivent partir **vides**.
 
-### 9.5 Lien `storage` — sans `artisan storage:link`
+### 10.5 Lien `storage` — sans `artisan storage:link`
 
 Le Gestionnaire de fichiers ne sait pas créer de lien symbolique. Déposer
 temporairement dans `public_html/` un fichier `lien.php` :
@@ -359,7 +443,7 @@ fichier**. Un script exécutable laissé dans `public_html/` est exactement le
 type de porte d'entrée à l'origine de l'incident d'août 2026 (voir plus bas) :
 ne pas le laisser « au cas où ».
 
-### 9.6 Permissions et caches
+### 10.6 Permissions et caches
 
 Gestionnaire de fichiers → *Permissions*, en récursif :
 
@@ -371,7 +455,7 @@ générés. Ce n'est pas bloquant : Laravel fonctionne sans, simplement un peu
 plus lentement. Ne **pas** tenter de les produire en local et de les
 téléverser, pour la raison donnée en §9.1.
 
-### 9.7 Limites de cette procédure
+### 10.7 Limites de cette procédure
 
 - Aucun mode maintenance : le site est incohérent pendant l'envoi.
 - Aucun retour arrière automatique en cas d'erreur.
@@ -384,7 +468,8 @@ procédure est un dépannage, pas un mode de fonctionnement.
 
 ## Mises à jour ultérieures
 
-> Sans accès shell, ces étapes ne s'appliquent pas — voir §9.
+> Sur l'offre actuelle, seule la partie locale ci-dessous s'applique : côté
+> serveur, le déploiement passe par la tâche cron du **§9.4**.
 
 En local :
 
