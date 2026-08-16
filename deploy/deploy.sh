@@ -61,6 +61,23 @@ else
 fi
 cd "$REPO" || exit 1
 
+# --- Verification des sources ----------------------------------------------
+# Controle AVANT de toucher a $APP : une copie partielle laisserait une
+# application cassee, mise en cache puis remise en ligne comme si tout allait
+# bien. C'est exactement ce qui s'est produit le 16 aout 2026, ou l'absence de
+# resources/ n'a pas interrompu le deploiement.
+MANQUE=""
+for src in app bootstrap config database public resources routes storage artisan composer.json composer.lock; do
+    [ -e "$REPO/$src" ] || MANQUE="$MANQUE $src"
+done
+if [ -n "$MANQUE" ]; then
+    echo "ERREUR : sources absentes du depot :$MANQUE"
+    echo "Contenu reel de $REPO :"
+    ls -la "$REPO"
+    echo "Deploiement abandonne, rien n'a ete modifie."
+    exit 1
+fi
+
 # --- Mode maintenance -------------------------------------------------------
 [ -f "$APP/artisan" ] && "$PHP" "$APP/artisan" down --render=errors::503 || true
 
@@ -70,7 +87,10 @@ cd "$REPO" || exit 1
 # depot survivraient sur le serveur.
 mkdir -p "$APP" "$WEB"
 rm -rf "$APP/app" "$APP/config" "$APP/database" "$APP/resources" "$APP/routes"
-cp -R app config database resources routes "$APP/"
+cp -R app config database resources routes "$APP/" || {
+    echo "ERREUR : copie du code applicatif incomplete. Site laisse en maintenance."
+    exit 1
+}
 
 # bootstrap/ contient bootstrap/cache (caches generes) : on remplace le code
 # sans toucher au dossier cache.
@@ -120,13 +140,25 @@ echo "--- migrations ---"
     exit 1
 }
 
-"$PHP" artisan config:cache
-"$PHP" artisan route:cache
-"$PHP" artisan view:cache
-"$PHP" artisan storage:link || true
+for c in config:cache route:cache view:cache; do
+    "$PHP" artisan "$c" || {
+        echo "ERREUR : artisan $c a echoue. Site laisse en maintenance."
+        exit 1
+    }
+done
+
+# --- Lien storage -----------------------------------------------------------
+# `artisan storage:link` echoue ici : il vise public_path(), soit
+# $APP/public/storage, alors que la racine web est $WEB. On cree donc le lien
+# a la main, vers le bon emplacement.
+mkdir -p "$APP/storage/app/public"
+ln -sfn "$APP/storage/app/public" "$WEB/storage" || {
+    echo "AVERTISSEMENT : lien $WEB/storage non cree, les images televersees ne s'afficheront pas."
+}
 
 # --- Permissions et fin de maintenance --------------------------------------
 chmod -R 775 "$APP/storage" "$APP/bootstrap/cache"
 "$PHP" artisan up
+echo "Site remis en ligne."
 
 echo "Deploiement termine : $(date)"
