@@ -340,6 +340,20 @@ cPanel → *Tâches cron*. Commande :
 > laisser tourner, puis **supprimer la tâche**. Une tâche laissée toutes les
 > cinq minutes rejouerait `migrate` et les copies de fichiers en boucle.
 
+Trois pièges du champ *Commande* de cPanel :
+
+- Il est prérempli d'un **exemple** (`/usr/local/bin/php /home/user/public_html/
+  path/to/cron/script.php`). Il faut le **remplacer entièrement**, pas le
+  compléter.
+- `deploy.sh` est un script **bash**, pas PHP : il s'appelle avec `/bin/bash`.
+  Le préfixer de `/usr/local/bin/php` échoue immédiatement.
+- Ni le script ni les journaux ne vont dans `public_html/` : ce dossier est
+  servi par le web, et `deploy.sh` expose l'arborescence complète du compte.
+  Le script reste dans le dépôt cloné, les journaux dans `/home/tharamotors/`.
+
+Enfin, cron traite `%` comme un caractère spécial : dans une commande cron, il
+doit être échappé en `\%`.
+
 Le journal complet est dans `/home/tharamotors/deploy.log`, lisible depuis le
 Gestionnaire de fichiers. Le script s'arrête et laisse le site en maintenance
 si PHP est trop ancien, si `.env` manque, si `git pull` échoue, si `vendor/`
@@ -392,6 +406,15 @@ tar -czf dist/web.tar.gz -C public .        # ~27 Mo, contenu de public/
 | `web.tar.gz` | le **contenu** de `public/` | `/home/tharamotors/public_html/` |
 
 Le dépôt ignore `/dist` : ces archives ne sont jamais versionnées.
+
+> **`node_modules/` ne part jamais en production.** Il ne sert qu'à construire
+> les assets : Vite compile `resources/css` et `resources/js` vers
+> `public/build/`, et le serveur ne sert que ce résultat — il n'exécute pas
+> Node. C'est précisément pourquoi `public/build/` est versionné, par exception
+> à la règle. Téléverser `node_modules/`, c'est quelques centaines de Mo pour
+> aucun usage, et du code exécutable de plus sur un compte déjà compromis une
+> fois. `vendor.tar.gz` contient les dépendances **PHP**, qui elles sont
+> indispensables à l'exécution.
 
 > `web.tar.gz` pèse 27 Mo à cause de `public/images/` (28 Mo d'images non
 > optimisées, dont une de 10 Mo). Ce n'est pas bloquant pour le déploiement,
