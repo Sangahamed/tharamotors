@@ -73,6 +73,16 @@ if [ -d "$REPO/.git" ] && command -v git >/dev/null 2>&1; then
         exit 1
     }
     echo "Clone aligne sur : $(git log --oneline -1)"
+
+    # Le git reset ci-dessus peut avoir mis a jour CE script. Bash continuerait
+    # alors d'executer l'ancienne version, et le correctif ne prendrait effet
+    # qu'au deploiement suivant. On relance donc une fois la version fraiche.
+    # DEPLOY_REEXEC empeche toute boucle.
+    if [ -z "${DEPLOY_REEXEC:-}" ]; then
+        export DEPLOY_REEXEC=1
+        echo "Relance avec la version a jour du script."
+        exec /bin/bash "$REPO/deploy/deploy.sh"
+    fi
 else
     echo "git indisponible ou depot absent : deploiement des fichiers en place."
 fi
