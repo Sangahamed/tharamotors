@@ -51,11 +51,28 @@ fi
 
 # --- Mise a jour du depot ---------------------------------------------------
 if [ -d "$REPO/.git" ] && command -v git >/dev/null 2>&1; then
-    echo "--- git pull ---"
-    cd "$REPO" && git pull --ff-only || {
-        echo "ERREUR : git pull a echoue. Deploiement abandonne."
+    cd "$REPO" || exit 1
+    BRANCHE=$(git branch --show-current 2>/dev/null)
+    BRANCHE=${BRANCHE:-master}
+    echo "--- git fetch + reset --hard origin/$BRANCHE ---"
+
+    # `git pull` ne restaure PAS les fichiers supprimes localement : il
+    # n'applique que les nouveautes du distant. Le 16 aout 2026, resources/
+    # manquait sur le serveur et chaque pull le laissait manquant, puisque le
+    # dossier n'avait pas bouge sur GitHub. `reset --hard` aligne le clone sur
+    # le distant et restaure tout ce qui a disparu.
+    #
+    # Les modifications locales du clone sont donc ecrasees : c'est voulu, ce
+    # depot est un miroir de deploiement, il n'a pas vocation a etre edite.
+    git fetch origin "$BRANCHE" || {
+        echo "ERREUR : git fetch a echoue. Deploiement abandonne."
         exit 1
     }
+    git reset --hard "origin/$BRANCHE" || {
+        echo "ERREUR : git reset a echoue. Deploiement abandonne."
+        exit 1
+    }
+    echo "Clone aligne sur : $(git log --oneline -1)"
 else
     echo "git indisponible ou depot absent : deploiement des fichiers en place."
 fi
