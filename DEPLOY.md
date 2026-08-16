@@ -8,14 +8,51 @@ DNS : `ns1.whazhe.com` / `ns2.whazhe.com`.
 - [x] Accès cPanel rétabli (serveur de nouveau disponible, 16 août 2026)
 - [x] Version de PHP modifiable et création de base MySQL débloquées par
       l'hébergeur (16 août 2026)
+- [ ] **Accès shell activé sur le compte** — bloquant, voir §0 bis
 - [ ] `public_html` vidé de tout fichier non identifié
-- [ ] Accès SSH ouvert et clé autorisée (cPanel → *SSH Access* → *Manage SSH Keys*)
+- [ ] Clé SSH autorisée (cPanel → *SSH Access* → *Manage SSH Keys*)
 - [ ] PHP **8.3 ou supérieur** sélectionné dans cPanel → *Sélectionner la version de PHP*
       (Laravel 13 refuse de démarrer en dessous)
 - [ ] Extensions PHP activées : `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`,
       `json`, `mbstring`, `openssl`, `pcre`, `pdo_mysql`, `tokenizer`, `xml`, `zip`
 
-## 0 bis. Page d'attente (à faire tout de suite)
+## 0 bis. Accès shell — verrou du déploiement
+
+**C'est le blocage en cours (16 août 2026).** *Deploy HEAD Commit* est grisé et
+inactif dans cPanel → *Git™ Version Control* → *Pull or Deploy*, alors que la
+branche sortie est bien `master`, que le commit correspond au dernier push et
+que `.cpanel.yml` est présent et valide.
+
+Cause : le déploiement cPanel exécute les tâches de `.cpanel.yml` **dans un
+shell**. Sans shell activé sur le compte, cPanel affiche le bouton et son texte
+d'aide (« Run the configured tasks to deploy your repository ») mais ne
+l'active jamais. Aucun message d'erreur n'accompagne le bouton : le symptôme est
+silencieux, d'où la confusion possible avec un problème de branche ou de dépôt.
+
+Vérification :
+
+```bash
+ssh -p 22 tharamotors@tharamotors.com
+ssh -p 2222 tharamotors@tharamotors.com   # certains hebergeurs deplacent SSH
+```
+
+`Connection refused` sur les deux ports = shell non activé (constaté le
+16 août 2026 sur le port 22).
+
+Correction, à demander à `digitalworka-ci.com` :
+
+> Activer l'accès SSH (**jailed shell**) sur le compte cPanel `tharamotors`,
+> nécessaire pour la fonction *Git Version Control → Deploy*.
+
+Le jailed shell suffit — c'est le réglage standard en mutualisé, et il se
+refuse moins souvent qu'un shell complet.
+
+> **Si l'hébergeur refuse le shell**, le déploiement automatique est
+> définitivement impossible : il faut basculer sur une mise en ligne manuelle
+> (`composer install --no-dev` en local, envoi de `vendor/` par FTP, migrations
+> jouées via phpMyAdmin). Nettement plus fragile à maintenir — dernier recours.
+
+## 0 ter. Page d'attente (à faire tout de suite)
 
 Tant que les prérequis ci-dessus ne sont pas levés, le domaine affiche le
 contenu brut de `public_html` (`cgi-bin/`) : mauvaise image, et indexation par
@@ -49,19 +86,21 @@ externe. Elle fonctionne donc même avec la version de PHP actuelle du serveur.
 `public_html/index.html` (tâche prévue dans `.cpanel.yml`) et remplace le
 `.htaccess`. Rien à défaire à la main.
 
-## 0 ter. Ordre du premier déploiement
+## 0 quater. Ordre du premier déploiement
 
-Les deux blocages hébergeur (version de PHP verrouillée, création de base MySQL
-impossible) sont levés depuis le 16 août 2026. Le premier *Deploy HEAD Commit*
-peut être lancé, **dans cet ordre** — chaque étape conditionne la suivante :
+Les deux premiers blocages hébergeur (version de PHP verrouillée, création de
+base MySQL impossible) sont levés depuis le 16 août 2026. Reste l'accès shell
+(§0 bis), sans lequel l'étape 7 est inaccessible. Ensuite, **dans cet ordre** —
+chaque étape conditionne la suivante :
 
-1. cPanel → PHP **8.3+** sélectionné, extensions de la §0 activées
-2. Base et utilisateur MySQL créés, privilèges accordés (§1)
-3. Dépôt cloné dans `~/repositories/tharamotors` (§3.1) et branche choisie (§3.2)
-4. `~/laravel/.env` écrit à la main avec une **nouvelle** `APP_KEY` (§4) —
+1. Accès shell activé par l'hébergeur (§0 bis)
+2. cPanel → PHP **8.3+** sélectionné, extensions de la §0 activées
+3. Base et utilisateur MySQL créés, privilèges accordés (§1)
+4. Dépôt cloné dans `~/repositories/tharamotors` (§3.1) et branche choisie (§3.2)
+5. `~/laravel/.env` écrit à la main avec une **nouvelle** `APP_KEY` (§4) —
    sans lui `migrate` échoue
-5. Chemins `PHP` et `composer` de `.cpanel.yml` vérifiés en SSH (§3.4)
-6. *Update from Remote* puis *Deploy HEAD Commit* (§3.3)
+6. Chemins `PHP` et `composer` de `.cpanel.yml` vérifiés en SSH (§3.4)
+7. *Update from Remote* puis *Deploy HEAD Commit* (§3.3)
 
 Le déploiement supprime lui-même `public_html/index.html` : la page d'attente
 disparaît au premier déploiement réussi, rien à défaire à la main.
