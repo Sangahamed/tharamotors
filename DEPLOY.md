@@ -323,8 +323,30 @@ puis **supprimer la tâche**. Trois cas :
 | Résultat | Suite |
 |---|---|
 | `composer` **et** `git` présents | Idéal : §9.2, rien à téléverser |
-| `git` seul | §9.2, mais téléverser `vendor.zip` (§10.1) |
+| `git` seul | §9.2, mais téléverser `vendor.tar.gz` (§10.1) |
 | Aucun des deux | Tout téléverser à la main : §10 |
+
+### Environnement constaté — 16 août 2026
+
+Diagnostic exécuté, résultat : **premier cas**, rien à téléverser.
+
+| Élément | État |
+|---|---|
+| PHP CLI | `/opt/cpanel/ea-php83/root/usr/bin/php` → **8.3.31** |
+| Autres PHP | ea-php74, ea-php81, ea-php82 ; `/usr/local/bin/php` → 8.1.34 |
+| Extensions | les 12 requises présentes sur ea-php83 |
+| Composer | `/opt/cpanel/composer/bin/composer` |
+| Git | `/usr/bin/git` 2.48.2 |
+| `~/laravel` | absent — premier déploiement |
+| `~/public_html` | `cgi-bin/`, `.well-known/`, un `.htaccess` de 281 o |
+
+Les chemins codés dans `deploy.sh` correspondent : aucune adaptation.
+
+> ⚠️ **Le PHP en ligne de commande n'est pas celui d'Apache.** `deploy.sh`
+> utilise explicitement ea-php83, mais les pages web sont servies avec la
+> version choisie dans cPanel → *MultiPHP Manager*. Y sélectionner **ea-php83**
+> pour `tharamotors.com`, sinon le site tourne en 7.4 ou 8.1 et Laravel 13
+> échoue à l'exécution alors que le déploiement, lui, aura réussi.
 
 ### 9.2 Mise en place
 
