@@ -48,9 +48,9 @@ Le jailed shell suffit — c'est le réglage standard en mutualisé, et il se
 refuse moins souvent qu'un shell complet.
 
 > **Si l'hébergeur refuse le shell**, le déploiement automatique est
-> définitivement impossible : il faut basculer sur une mise en ligne manuelle
-> (`composer install --no-dev` en local, envoi de `vendor/` par FTP, migrations
-> jouées via phpMyAdmin). Nettement plus fragile à maintenir — dernier recours.
+> définitivement impossible : basculer sur la procédure manuelle du **§9**.
+> Elle fonctionne, mais chaque mise à jour se refait entièrement à la main —
+> dépannage, pas mode de fonctionnement.
 
 ## 0 ter. Page d'attente (à faire tout de suite)
 
@@ -270,7 +270,121 @@ le fichier est réécrit à chaque déploiement.
 - [ ] Connexion admin fonctionnelle
 - [ ] `laravel/storage/logs/` ne contient pas d'erreur après navigation
 
+## 9. Déploiement manuel — sans shell
+
+Procédure de repli tant que l'accès shell n'est pas accordé (§0 bis). Elle
+n'utilise que FTP et le Gestionnaire de fichiers cPanel. **Aucune commande
+`artisan` ne peut être lancée sur le serveur** : tout ce qui en dépend est
+préparé en local ou contourné ci-dessous.
+
+À relire avant chaque mise à jour : contrairement au déploiement automatique,
+rien n'est rejoué tout seul.
+
+### 9.1 Préparer les fichiers en local
+
+```bash
+composer install --no-dev --optimize-autoloader   # produit vendor/
+npm run build                                     # si resources/ a change
+php artisan key:generate --show                   # noter la cle base64:...
+```
+
+La clé sert au `.env` de production (§4). **Générer une nouvelle clé**, celle du
+`.env` local est compromise.
+
+Compresser ensuite les deux arborescences — un envoi FTP de `vendor/` fichier
+par fichier, c'est des milliers d'éléments et plusieurs heures :
+
+| Archive à créer | Contenu |
+|---|---|
+| `laravel.zip` | `app/ bootstrap/ config/ database/ resources/ routes/ storage/ vendor/ artisan composer.json composer.lock` |
+| `web.zip` | le **contenu** de `public/` (pas le dossier lui-même) |
+
+> Ne pas inclure `bootstrap/cache/*` : un `config.php` généré en local
+> contiendrait les chemins et les identifiants de la machine de développement,
+> et l'application de production les utiliserait. Le dossier `bootstrap/cache/`
+> doit partir **vide**.
+
+### 9.2 Envoyer et extraire
+
+Téléverser les archives par FTP, puis *Extract* dans le Gestionnaire de
+fichiers cPanel :
+
+- `laravel.zip` → extraire dans `/home/tharamotors/laravel/`
+- `web.zip` → extraire dans `/home/tharamotors/public_html/`
+
+Puis, dans `public_html/` :
+
+- remplacer `index.php` par le contenu de `deploy/index.php` du dépôt
+  (chemins pointés vers `~/laravel`) ;
+- supprimer `index.html` — la page d'attente, qu'Apache sert **avant**
+  `index.php` et qui masquerait le site.
+
+### 9.3 `.env`
+
+Créer `/home/tharamotors/laravel/.env` avec le Gestionnaire de fichiers, à
+partir de `.env.production.example` (§4). Compléter `APP_KEY` (celle du §9.1),
+`DB_PASSWORD` et `MAIL_PASSWORD`. Vérifier `APP_DEBUG=false`.
+
+### 9.4 Base de données — sans `artisan migrate`
+
+Les migrations se jouent en local, puis le schéma est importé :
+
+```bash
+# sur une base locale vide, aux memes nom et version que la production
+php artisan migrate
+mysqldump -u root tharamotors_local > schema.sql
+```
+
+cPanel → *phpMyAdmin* → base `tharamotors_prod` → *Importer* → `schema.sql`.
+
+> Vérifier que le dump ne contient pas de données de test : `SESSION_DRIVER`,
+> `CACHE_STORE` et `QUEUE_CONNECTION` sont sur `database`, donc les tables
+> `sessions`, `cache` et `jobs` doivent partir **vides**.
+
+### 9.5 Lien `storage` — sans `artisan storage:link`
+
+Le Gestionnaire de fichiers ne sait pas créer de lien symbolique. Déposer
+temporairement dans `public_html/` un fichier `lien.php` :
+
+```php
+<?php
+symlink(
+    '/home/tharamotors/laravel/storage/app/public',
+    '/home/tharamotors/public_html/storage'
+);
+```
+
+L'appeler **une fois** dans le navigateur, puis **supprimer immédiatement le
+fichier**. Un script exécutable laissé dans `public_html/` est exactement le
+type de porte d'entrée à l'origine de l'incident d'août 2026 (voir plus bas) :
+ne pas le laisser « au cas où ».
+
+### 9.6 Permissions et caches
+
+Gestionnaire de fichiers → *Permissions*, en récursif :
+
+- `laravel/storage/` → `755`
+- `laravel/bootstrap/cache/` → `755`
+
+Les caches `config:cache`, `route:cache` et `view:cache` ne peuvent pas être
+générés. Ce n'est pas bloquant : Laravel fonctionne sans, simplement un peu
+plus lentement. Ne **pas** tenter de les produire en local et de les
+téléverser, pour la raison donnée en §9.1.
+
+### 9.7 Limites de cette procédure
+
+- Aucun mode maintenance : le site est incohérent pendant l'envoi.
+- Aucun retour arrière automatique en cas d'erreur.
+- Chaque mise à jour, même d'une ligne, impose de refaire §9.1 → §9.6.
+- Les migrations futures devront être rejouées à la main par phpMyAdmin, avec
+  le risque de désynchronisation entre `migrations` locale et production.
+
+C'est pourquoi l'accès shell (§0 bis) reste la vraie solution : cette
+procédure est un dépannage, pas un mode de fonctionnement.
+
 ## Mises à jour ultérieures
+
+> Sans accès shell, ces étapes ne s'appliquent pas — voir §9.
 
 En local :
 
