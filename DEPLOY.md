@@ -5,7 +5,9 @@ DNS : `ns1.whazhe.com` / `ns2.whazhe.com`.
 
 ## 0. Prérequis bloquants
 
-- [x] Accès cPanel rétabli (serveur de nouveau disponible, 14 août 2026)
+- [x] Accès cPanel rétabli (serveur de nouveau disponible, 16 août 2026)
+- [x] Version de PHP modifiable et création de base MySQL débloquées par
+      l'hébergeur (16 août 2026)
 - [ ] `public_html` vidé de tout fichier non identifié
 - [ ] Accès SSH ouvert et clé autorisée (cPanel → *SSH Access* → *Manage SSH Keys*)
 - [ ] PHP **8.3 ou supérieur** sélectionné dans cPanel → *Sélectionner la version de PHP*
@@ -47,21 +49,22 @@ externe. Elle fonctionne donc même avec la version de PHP actuelle du serveur.
 `public_html/index.html` (tâche prévue dans `.cpanel.yml`) et remplace le
 `.htaccess`. Rien à défaire à la main.
 
-## 0 ter. Blocages en attente chez l'hébergeur
+## 0 ter. Ordre du premier déploiement
 
-Deux points relèvent de `digitalworka-ci.com` et bloquent le déploiement réel :
+Les deux blocages hébergeur (version de PHP verrouillée, création de base MySQL
+impossible) sont levés depuis le 16 août 2026. Le premier *Deploy HEAD Commit*
+peut être lancé, **dans cet ordre** — chaque étape conditionne la suivante :
 
-- [ ] **Version de PHP non modifiable** — *Sélectionner la version de PHP* est
-      inaccessible ou verrouillé. Laravel 13 exige **PHP 8.3 minimum** : sans
-      cela l'application ne démarrera pas, quelle que soit la qualité du
-      déploiement. À demander explicitement au support.
-- [ ] **Création de base MySQL impossible** — sans base, `migrate` échoue et le
-      site ne peut pas fonctionner. À demander en même temps.
+1. cPanel → PHP **8.3+** sélectionné, extensions de la §0 activées
+2. Base et utilisateur MySQL créés, privilèges accordés (§1)
+3. Dépôt cloné dans `~/repositories/tharamotors` (§3.1) et branche choisie (§3.2)
+4. `~/laravel/.env` écrit à la main avec une **nouvelle** `APP_KEY` (§4) —
+   sans lui `migrate` échoue
+5. Chemins `PHP` et `composer` de `.cpanel.yml` vérifiés en SSH (§3.4)
+6. *Update from Remote* puis *Deploy HEAD Commit* (§3.3)
 
-Tant que ces deux points ne sont pas levés, **ne pas lancer** *Deploy HEAD
-Commit* : le déploiement échouerait sur `composer install` ou `migrate` et
-laisserait `public_html` dans un état intermédiaire. La page d'attente reste en
-place jusque-là.
+Le déploiement supprime lui-même `public_html/index.html` : la page d'attente
+disparaît au premier déploiement réussi, rien à défaire à la main.
 
 ## 1. Base de données
 
