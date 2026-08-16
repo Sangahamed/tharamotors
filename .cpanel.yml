@@ -11,7 +11,8 @@ deployment:
     - export APP=/home/tharamotors/laravel
     - export WEB=/home/tharamotors/public_html
     - export PHP=/opt/cpanel/ea-php83/root/usr/bin/php
-    - /bin/test -x $PHP || export PHP=/usr/local/bin/php
+    - /bin/test -x $PHP || export PHP=$(which php)
+    - export COMPOSER=$(which composer || echo "/opt/cpanel/composer/bin/composer")
 
     # --- Mode maintenance (ignore si l'appli n'est pas encore installee) ---
     - /bin/test -f $APP/artisan && $PHP $APP/artisan down --render=errors::503 || true
@@ -23,12 +24,16 @@ deployment:
     - /bin/mkdir -p $APP $WEB
     - /bin/rm -rf $APP/app $APP/config $APP/database $APP/resources $APP/routes
     - /bin/cp -R app config database resources routes $APP/
+
+    # --- Bootstrap ---
     # bootstrap/ contient bootstrap/cache (caches generes) : on remplace le
     # code sans toucher au dossier cache.
     - /bin/rm -rf $APP/bootstrap/providers.php $APP/bootstrap/app.php
     - /bin/cp -R bootstrap/. $APP/bootstrap/
     - /bin/mkdir -p $APP/bootstrap/cache
     - /bin/cp artisan composer.json composer.lock $APP/
+
+    # --- Storage ---
     # storage/ n'est copie qu'au premier deploiement : il contient les
     # fichiers televerses, les logs et les caches du serveur.
     - /bin/test -d $APP/storage || /bin/cp -R storage $APP/
@@ -44,7 +49,7 @@ deployment:
     - /bin/rm -f $WEB/index.html
 
     # --- Dependances ---
-    - cd $APP && $PHP /opt/cpanel/composer/bin/composer install --no-dev --no-interaction --optimize-autoloader
+    - cd $APP && $PHP $COMPOSER install --no-dev --no-interaction --optimize-autoloader
 
     # --- Base de donnees et caches ---
     - cd $APP && $PHP artisan migrate --force
@@ -53,5 +58,6 @@ deployment:
     - cd $APP && $PHP artisan view:cache
     - cd $APP && $PHP artisan storage:link || true
 
-    - /bin/chmod -R 755 $APP/storage $APP/bootstrap/cache
+    # --- Permissions & Fin de maintenance ---
+    - /bin/chmod -R 775 $APP/storage $APP/bootstrap/cache
     - cd $APP && $PHP artisan up
