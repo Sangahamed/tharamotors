@@ -301,12 +301,21 @@ est idempotent : le relancer est sans danger.
 ### 9.1 Diagnostic — ce dont dispose le serveur
 
 Avant tout, savoir si `composer` et `git` sont présents : cela détermine s'il
-faut téléverser `vendor/` à la main. cPanel → *Tâches cron*, exécution dans
-5 minutes, commande :
+faut téléverser `vendor/` à la main. Le script `deploy/diag.sh` répond aussi
+sur la version de PHP, les extensions requises et l'état de l'arborescence. Il
+ne modifie rien.
+
+cPanel → *Tâches cron*, exécution dans 5 minutes, commande :
 
 ```bash
-{ date; echo "--- PHP ---"; ls /opt/cpanel/ea-php*/root/usr/bin/php; command -v php; php -v | head -1; echo "--- COMPOSER ---"; command -v composer; ls -l /opt/cpanel/composer/bin/composer; echo "--- GIT ---"; command -v git; git --version; echo "--- DEPOT ---"; ls -d /home/tharamotors/repositories/tharamotors; } > /home/tharamotors/diag.log 2>&1
+/bin/bash /home/tharamotors/repositories/tharamotors/deploy/diag.sh
 ```
+
+> Passer par un script plutôt que par une longue commande en ligne évite les
+> mésaventures de quoting du champ *Commande* : une commande incomplètement
+> remplacée produit un `jailshell: /home/tharamotors/diag.log: No such file or
+> directory` — cron a tenté d'exécuter le fichier de sortie (constaté le
+> 16 août 2026).
 
 Lire ensuite `/home/tharamotors/diag.log` dans le Gestionnaire de fichiers,
 puis **supprimer la tâche**. Trois cas :
